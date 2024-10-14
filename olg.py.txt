@@ -1,0 +1,59 @@
+# Simple simulation illustrating the workings of an OLG model.
+# Copyright (c) 2019 Gerrit Meyerheim <gerrit.meyerheim@econ.lmu.de>
+
+# Load necessary modules.
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Define the number of time periods and the number of individuals.
+T	= 51
+indiv	= 2
+
+# Set parameters values.
+delta	= 0.3
+A	= 4.5
+gamma	= 0.9
+h_base	= - 0.25
+hbar	= 0.6
+
+# Generate vectors for each individual.
+time	= np.zeros((T,indiv))
+year	= np.zeros((T,indiv))
+w	= np.zeros((T,indiv))
+c	= np.zeros((T,indiv))
+e	= np.zeros((T,indiv))
+h	= np.zeros((T+1,indiv))
+
+# Set initial conditions.
+for j in np.arange(0, indiv):
+
+    h[0,j] = h_base + (j + 1.) / indiv
+
+    # Compute the dynamic system.
+    for i in np.arange(0, T):
+
+        time[i,j] = i
+
+        year[i,j] = time[i,j] * 20.
+
+        w[i,j] = A * h[i,j]
+
+        c[i,j] = (1. - delta) * w[i,j]
+
+        e[i,j] = delta * w[i,j]
+
+        if e[i,j] >= 1.:
+
+            h[i+1,j] = (e[i,j])**(gamma)
+
+        else:
+
+            h[i+1,j] = hbar
+
+# Draw the evolution of the individual human capital stocks.
+plt.plot(year[:T,0], h[:T,0], '-b.',
+         year[:T,1], h[:T,1], '-r.')
+plt.title('Human Capital Stock for Different Individuals')
+plt.xlabel('Year')
+plt.ylabel('Individual Human Capital Stock')
+plt.show()

@@ -1,0 +1,98 @@
+# Simple simulation illustrating the workings of the Solow Model.
+# Copyright (c) 2019 Gerrit Meyerheim <gerrit.meyerheim@econ.lmu.de>
+
+# Load necessary modules.
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Define the different scenarios (baseline, differences in K(0) or s).
+base	= 1
+k_0	= 0
+s_diff	= 0
+
+# Define the number of time periods and the number of countries.
+T	= 71
+
+if base == 1:
+
+	count	= 1
+
+else:
+
+	count	= 5
+
+# Set parameter values.
+alpha	= 0.4
+delta	= 0.1
+n	= 0.001
+
+# Generate vectors for each country.
+s	= np.zeros((count))
+time	= np.zeros((T,count))
+year	= np.zeros((T,count))
+K	= np.zeros((T+1,count))
+L	= np.zeros((T+1,count))
+Y	= np.zeros((T,count))
+k	= np.zeros((T,count))
+
+# Set initial conditions.
+for j in np.arange(0, count):
+
+    if base == 1:
+
+        K[0,j]	= 1.
+        s[j]	= 0.33
+
+    elif k_0 == 1:
+
+        K[0,j]	= (j + 1.) / count
+        s[j]	= 0.33
+
+    elif s_diff == 1:
+
+        K[0,j]	= 1.
+        s[j]	= 0.33 + 0.5 * (j - 1.) / count
+
+    L[0,j]	= 1.
+
+    # Compute the dynamic system.
+    for i in np.arange(0, T):
+
+        time[i,j]	= i
+
+        year[i,j]	= time[i,j] + 1950
+
+        Y[i,j]		= K[i,j]**(alpha) * L[i,j]**(1 - alpha)
+
+        k[i,j]		= K[i,j] / L[i,j]
+
+        K[i+1,j]	= s[j] * Y[i,j] + (1 - delta) * K[i,j]
+
+        L[i+1,j]	= (1 + n) * L[i,j]
+
+# Draw the evolution of the capital stock per capita.
+if base == 1:
+
+    plt.plot(year[:T,0], k[:T,0], '-b.')
+    plt.title('Capital Stock per Capita')
+
+
+else:
+
+    plt.plot(year[:T,0], k[:T,0], '-b.',
+             year[:T,1], k[:T,1], '-r.',
+             year[:T,2], k[:T,2], '-y.',
+             year[:T,3], k[:T,3], '-g.',
+             year[:T,4], k[:T,4], '-c.')
+    
+    if k_0 == 1:
+
+        plt.title('Capital Stock per Capita for Different Countries [K(0)]')
+
+    else:
+
+        plt.title('Capital Stock per Capita for Different Countries [s]')
+
+plt.xlabel('Year')
+plt.ylabel('Capital Stock per Capita')
+plt.show()
